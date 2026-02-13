@@ -12,9 +12,31 @@ namespace Antymology.Terrain
         #region Fields
 
         /// <summary>
-        /// The prefab containing the ant.
+        /// The prefab containing the ants.
         /// </summary>
-        public GameObject antPrefab;
+        public GameObject queenAntPrefab;
+        public GameObject workerAntPrefab;
+
+        // for looking at the queen ant
+        public Transform target;
+
+        /// <summary>
+        /// generating a lot of ants.
+        /// </summary>
+        public int instanceCount = 100;
+        // You might even want to keep track of each instance:
+        public List<GameObject> _instances = new List<GameObject>();
+
+        // Define the range for the random positions
+        public float minX = 50f;
+        public float maxX = 70f;
+        public float minY = 13f;
+        public float maxY = 20f;
+        public float minZ = 40f;
+        public float maxZ = 70f;
+        /// <summary>
+        /// End of generating a lot of ants.
+        /// </summary>
 
         /// <summary>
         /// The material used for eech block.
@@ -66,7 +88,7 @@ namespace Antymology.Terrain
             Chunks = new Chunk[
                 ConfigurationManager.Instance.World_Diameter,
                 ConfigurationManager.Instance.World_Height,
-                ConfigurationManager.Instance.World_Diameter];
+                ConfigurationManager.Instance.World_Diameter];   
         }
 
         /// <summary>
@@ -77,8 +99,12 @@ namespace Antymology.Terrain
             GenerateData();
             GenerateChunks();
 
-            Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
-            Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+            // Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
+            Camera.main.transform.position = new Vector3(60, 27, 40);
+
+            // Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
+            // Camera.main.transform.LookAt(new Vector3(44, 5, 10));
+            Camera.main.transform.LookAt(target);
 
             GenerateAnts();
         }
@@ -88,7 +114,26 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < instanceCount; ++i) {
+                // Generate random X, Y, and Z coordinates
+                float randomX = UnityEngine.Random.Range(minX, maxX);
+                float yHigh = Blocks.GetLength(1);
+                float randomZ = UnityEngine.Random.Range(minZ, maxZ);
+
+                Vector3 randomPosition = new Vector3(randomX, Blocks.GetLength(1), randomZ);
+                RaycastHit hit;
+
+                if (Physics.Raycast(randomPosition, Vector3.down, out hit))
+                {
+                    randomPosition = hit.point;
+                }
+                var instance = Instantiate(workerAntPrefab, randomPosition, Quaternion.identity);
+                // var instance = Instantiate(workerAntPrefab, randomPosition);
+                // instance.transform.position = randomPosition;
+                _instances.Add(instance);
+
+
+            }
         }
 
         #endregion
