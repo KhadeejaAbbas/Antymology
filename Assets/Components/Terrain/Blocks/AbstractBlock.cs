@@ -29,4 +29,17 @@ public abstract class AbstractBlock
     /// The world z coordinate of this block.
     /// </summary>
     public int worldZCoordinate;
+
+
+
+    public abstract int TextureID { get; }
+    // list:
+    // 0: stone
+    // 1: mulch
+    // 2: grass
+    // 3: acid
+    // 4: air
+    // 5: container
+    // 6: nest
+
 }

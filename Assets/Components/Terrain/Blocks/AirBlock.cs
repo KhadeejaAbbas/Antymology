@@ -55,6 +55,8 @@ namespace Antymology.Terrain
             throw new NotImplementedException();
         }
 
+        public override int TextureID => 4; // air
+
         #endregion
 
     }

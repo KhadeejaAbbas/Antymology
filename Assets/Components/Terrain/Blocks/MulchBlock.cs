@@ -40,6 +40,8 @@ namespace Antymology.Terrain
             return _isVisible;
         }
 
+        public override int TextureID => 1; // mulch
+
         #endregion
 
     }

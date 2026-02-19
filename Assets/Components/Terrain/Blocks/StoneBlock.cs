@@ -40,6 +40,9 @@ namespace Antymology.Terrain
             return _isVisible;
         }
 
+        public override int TextureID => 0; // stone
+
+
         #endregion
 
     }
