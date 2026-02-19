@@ -12,27 +12,26 @@ public class workerAnt : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        MoveDown();
         health = 100;
+
     }
 
     void Update()
     {
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
+            // Move();
+
             // is ant dead?
             if (health == 0)
             {
                 Die();
             }
             // is the block we're on eatable?
-            // BlockActions();     
-
-            // are we properly on a block?
-            MoveDown();
+            BlockActions();     
 
             // ok, now move forward
-            // Move();
+            Move();
        
             health = health - 5;
 
@@ -81,10 +80,9 @@ public class workerAnt : MonoBehaviour
 
         if (block == 1)
         {
-            Mulch();
-            //move down
             // it is mulch
-            // Mulch();
+            Mulch();
+
         }
         if (block == 2)
         {
@@ -212,33 +210,16 @@ public class workerAnt : MonoBehaviour
 
     void MoveDown()
     {
-        int x = Mathf.FloorToInt(transform.position.x);
-        int y = Mathf.FloorToInt(transform.position.y);
-        int z = Mathf.FloorToInt(transform.position.z);
-        // Start ray above the position
-        Vector3 rayDown = transform.position + Vector3.up * 10f; // by making this value 3, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment)
-
-        if (Physics.Raycast(rayDown, Vector3.down, out RaycastHit hitDown, 50f)) // by making this value 50, we're saying the ant can basically jump down to any level of block
+        int x = (int)Mathf.Round(transform.position.x);
+        int y = (int)Mathf.Round(transform.position.y);
+        int z = (int)Mathf.Round(transform.position.z);
+        // move down until we hit non-air
+        while (WorldManager.Instance.GetBlock(x, y - 1, z) is AirBlock)
         {
-            // place ant on next block
-            transform.position = new Vector3(
-                transform.position.x,
-                hitDown.point.y,
-                transform.position.z
-            );
+            y--;
         }
+        float antHeightOffset = 0.45f; 
+        transform.position = new Vector3(x, y-antHeightOffset, z); 
     }
 
-    // void MoveDownVoxel()
-// {
-
-
-//     // move down until we hit non-air
-//     while (WorldManager.Instance.GetBlock(x, y - 1, z) is AirBlock)
-//     {
-//         y--;
-//     }
-
-//     transform.position = new Vector3(x + 0.5f, y, z + 0.5f); // optional +0.5 for center of block
-// }
 }
