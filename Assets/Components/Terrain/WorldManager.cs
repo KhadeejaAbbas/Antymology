@@ -19,6 +19,8 @@ namespace Antymology.Terrain
 
         // for looking at the queen ant
         public Transform target;
+        public GameObject queenInstance;
+        public QueenAnt queen;
 
         public int WorldSizeX;
         public int WorldSizeZ;
@@ -26,13 +28,13 @@ namespace Antymology.Terrain
         /// <summary>
         /// generating a lot of ants.
         /// </summary>
-        public int instanceCount = 100;
+        public int instanceCount = 300;
         // You might even want to keep track of each instance:
         public List<GameObject> _instances = new List<GameObject>();
 
         // Define the range for the random positions for the ants spawn pos
-        public float minX = 50f;
-        public float maxX = 70f;
+        public float minX = 55f;
+        public float maxX = 65f;
         public float minY = 13f;
         public float maxY = 20f;
         public float minZ = 40f;
@@ -109,7 +111,7 @@ namespace Antymology.Terrain
 
             // Camera.main.transform.LookAt(new Vector3(Blocks.GetLength(0), 0, Blocks.GetLength(2)));
             // Camera.main.transform.LookAt(new Vector3(44, 5, 10));
-            Camera.main.transform.LookAt(target);
+            // Camera.main.transform.LookAt(target);
 
             GenerateAnts();
         }
@@ -119,6 +121,25 @@ namespace Antymology.Terrain
         /// </summary>
         private void GenerateAnts()
         {
+            // Spawn Queen first
+            float randomXQ = UnityEngine.Random.Range(minX, maxX);
+            float randomZQ = UnityEngine.Random.Range(minZ, maxZ);
+
+            Vector3 queenSpawn = new Vector3(randomXQ, Blocks.GetLength(1), randomZQ);
+            RaycastHit hitQueen;
+
+            if (Physics.Raycast(queenSpawn, Vector3.down, out hitQueen))
+            {
+                queenSpawn = hitQueen.point;
+            }
+
+            queenInstance = Instantiate(queenAntPrefab, queenSpawn, Quaternion.identity);
+            queen = queenInstance.GetComponent<QueenAnt>();
+
+            // make camera follow queen
+            target = queenInstance.transform;
+            Camera.main.transform.LookAt(target);
+
             for (int i = 0; i < instanceCount; ++i) {
                 // Generate random X, Y, and Z coordinates
                 float randomX = UnityEngine.Random.Range(minX, maxX);

@@ -15,7 +15,7 @@ public class WorkerAnt : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        health = 100;
+        health = 500;
         // Wait until WorldManager exists
         // if (WorldManager.Instance == null)
         // {
@@ -48,12 +48,13 @@ public class WorkerAnt : MonoBehaviour
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
             Move();
-
             // is ant dead?
             if (health <= 0)
             {
                 Die();
             }
+            // ok, now move forward
+            // Move();
             // is the block we're on eatable?
             BlockActions();     
 
@@ -72,7 +73,16 @@ public class WorkerAnt : MonoBehaviour
 
     void Move()
     {
-        Vector3 direction = RandomDirection();
+        Vector3 direction;
+        if (health > 250) // move towards nest
+        {
+            direction = FindBestPheromoneDirection();
+        }
+        else
+        {
+            direction = RandomDirection();
+
+        }
         Vector3 forwardStep = transform.position + direction;
 
         int targetX = Mathf.RoundToInt(forwardStep.x);
@@ -94,7 +104,7 @@ public class WorkerAnt : MonoBehaviour
                 Mathf.Round(forwardStep.z)
             );
         }
-    }
+}
 
     void BlockActions()
     {
@@ -146,7 +156,7 @@ public class WorkerAnt : MonoBehaviour
 
         if (block == 6)
         {
-            // it is nest
+            // it is nest so donate to queen
             Nest();
         }
 
@@ -198,7 +208,8 @@ public class WorkerAnt : MonoBehaviour
 
     void Nest()
     {
-        //bro idk just ignore it?
+        // donate
+        DonateToQueen();
     }
     void Die()
     {
@@ -325,6 +336,19 @@ public class WorkerAnt : MonoBehaviour
         }
     }
 
+    void DonateToQueen()
+    {
+        QueenAnt queen = WorldManager.Instance.queen;
+        if (queen != null){
+            // donate no matter what
+            int health_to_donate = (int)Mathf.Round(health/2);
+            health = health - health_to_donate;
+            queen.health = queen.health + health_to_donate;
+        }else{
+            return;
+        }
+    }
+
     Vector3 RandomDirection()
     {
         int direction = UnityEngine.Random.Range(0, 4); 
@@ -344,6 +368,36 @@ public class WorkerAnt : MonoBehaviour
 
         return x >= 0 && x < maxX &&
             z >= 0 && z < maxZ;
+    }
+    Vector3 FindBestPheromoneDirection()
+    {
+        Vector3[] directions = {
+            Vector3.forward,
+            Vector3.back,
+            Vector3.left,
+            Vector3.right
+        };
+
+        float bestStrength = -1;
+        Vector3 bestDir = directions[UnityEngine.Random.Range(0,4)];
+
+        foreach (var dir in directions)
+        {
+            int x = Mathf.FloorToInt(transform.position.x + dir.x);
+            int y = Mathf.FloorToInt(transform.position.y);
+            int z = Mathf.FloorToInt(transform.position.z + dir.z);
+
+            if (WorldManager.Instance.GetBlock(x,y,z) is AirBlock air)
+            {
+                if (air.closessToNest > bestStrength)
+                {
+                    bestStrength = air.closessToNest;
+                    bestDir = dir;
+                }
+            }
+        }
+
+        return bestDir;
     }
 
 

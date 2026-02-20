@@ -57,6 +57,8 @@ namespace Antymology.Terrain
 
         public override int TextureID => 4; // air
 
+        public float closessToNest { get; set; } = 0f;
+
         #endregion
 
     }

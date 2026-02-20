@@ -5,7 +5,7 @@ using System.Collections;
 public class QueenAnt : MonoBehaviour
 {
     public float health;
-    public float stepDelay = 1.0f; // second between steps
+    public float stepDelay = 20f; // second between steps
     private float stepTimer = 0f;
     private bool worldReady = false;
 
@@ -42,15 +42,18 @@ public class QueenAnt : MonoBehaviour
             }
 
             Move();
+
             // build nest
             BuildNest();     
 
+            // since it's the nest, i want it spreading and not diffusing
+            // SpreadPheromone();
             // ok, now move forward
             // Move();
 
 
             // decrease health
-            health = health - 1;
+            // health = health - 1;
 
             stepTimer = stepDelay;
         }
@@ -78,21 +81,59 @@ public class QueenAnt : MonoBehaviour
 
     void BuildNest()
     {
+        // minus health
+        health = health - 300;
+        // is ant dead?
+        if (health <= 0)
+        {
+            Die();
+        }
+
         int x = Mathf.FloorToInt(transform.position.x);
         int y = Mathf.FloorToInt(transform.position.y);
         int z = Mathf.FloorToInt(transform.position.z);
-        WorldManager.Instance.SetBlock(x, y, z, new NestBlock());
+        WorldManager.Instance.SetBlock(x, y+1, z, new NestBlock());
 
-        // minus health
-        health = health - 300;
+        AbstractBlock block = WorldManager.Instance.GetBlock(x, y+2, z);
+
+        if (block is AirBlock air)
+        {
+            air.closessToNest = 10f;
+            SpreadPheromone(air, x, y+2, z);
+        }
+
 
         // move queen ontop of block
-        transform.position = new Vector3(
-            x,
-            y+1,
-            z
-        );
+        // transform.position = new Vector3(
+        //     x,
+        //     y+1,
+        //     z
+        // );
     }   
+
+    void SpreadPheromone(AirBlock air, int x, int y, int z)
+    {
+        float spreadAmount = air.closessToNest * 0.05f;
+
+        SpreadToNeighbor(x+1,y,z, spreadAmount);
+        SpreadToNeighbor(x-1,y,z, spreadAmount);
+        SpreadToNeighbor(x,y,z+1, spreadAmount);
+        SpreadToNeighbor(x,y,z-1, spreadAmount);
+        SpreadToNeighbor(x+1,y-1,z, spreadAmount);
+        SpreadToNeighbor(x-1,y-1,z, spreadAmount);
+        SpreadToNeighbor(x,y-1,z+1, spreadAmount);
+        SpreadToNeighbor(x,y-1,z-1, spreadAmount);
+    }
+    void SpreadToNeighbor(int x, int y, int z, float amount)
+    {
+        AbstractBlock block = WorldManager.Instance.GetBlock(x, y, z);
+
+        if (block is AirBlock neighbor)
+        {
+            neighbor.closessToNest += amount;
+        }
+    }
+
     void Die()
     {
         Destroy(gameObject);
