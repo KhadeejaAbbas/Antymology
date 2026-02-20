@@ -76,12 +76,33 @@ namespace Antymology.UI
             SetBlockAt(x, y, z);
         }
 
+        // void SetBlockAt(int x, int y, int z)
+        // {
+        //     Debug.Log(WorldManager.Instance.GetBlock(x, y, z));
+        //     WorldManager.Instance.SetBlock(x, y, z, currentBlockType);
+        //     Debug.Log(WorldManager.Instance.GetBlock(x, y, z));
+        // }
         void SetBlockAt(int x, int y, int z)
         {
-            Debug.Log(WorldManager.Instance.GetBlock(x, y, z));
+            if (WorldManager.Instance == null)
+            {
+                Debug.LogWarning("UITerrainEditor: WorldManager is not initialized yet!");
+                return;
+            }
+
+            AbstractBlock existingBlock = WorldManager.Instance.GetBlock(x, y, z);
+            if (existingBlock == null)
+            {
+                Debug.LogWarning($"UITerrainEditor: Block at ({x},{y},{z}) is null!");
+                return;
+            }
+
+            // Set the new block safely
             WorldManager.Instance.SetBlock(x, y, z, currentBlockType);
-            Debug.Log(WorldManager.Instance.GetBlock(x, y, z));
+
+            // **Do not try to access Chunk directly**. Let WorldManager handle mesh updates internally.
         }
+
 
         public void Update()
         {

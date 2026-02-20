@@ -56,14 +56,36 @@ namespace Antymology.Terrain
         /// <summary>
         /// initialize the gameobject to have a mesh and mesh renderer, and set the references internally.
         /// </summary>
+        // public void Init(Material mat)
+        // {
+        //     mesh = gameObject.AddComponent<MeshFilter>().mesh;
+        //     renderer = gameObject.AddComponent<MeshRenderer>();
+        //     renderer.material = mat;
+        //     collider = gameObject.AddComponent<MeshCollider>();
+        // }
         public void Init(Material mat)
         {
-            mesh = gameObject.AddComponent<MeshFilter>().mesh;
-            renderer = gameObject.AddComponent<MeshRenderer>();
-            renderer.material = mat;
-            collider = gameObject.AddComponent<MeshCollider>();
-        }
+            if (mat == null)
+            {
+                Debug.LogError("Chunk Init: blockMaterial is null!");
+                return;
+            }
 
+            MeshFilter mf = gameObject.GetComponent<MeshFilter>();
+            if (mf == null) mf = gameObject.AddComponent<MeshFilter>();
+
+            if (mf.mesh == null) mf.mesh = new Mesh();
+            mesh = mf.mesh;
+
+            MeshRenderer mr = gameObject.GetComponent<MeshRenderer>();
+            if (mr == null) mr = gameObject.AddComponent<MeshRenderer>();
+            mr.material = mat;
+            renderer = mr;
+
+            MeshCollider mc = gameObject.GetComponent<MeshCollider>();
+            if (mc == null) mc = gameObject.AddComponent<MeshCollider>();
+            collider = mc;
+        }
         /// <summary>
         /// Gets the Block with local coordinates from this chunk.
         /// </summary>
@@ -80,52 +102,135 @@ namespace Antymology.Terrain
         /// <summary>
         /// Generates a mesh object which is then passed to the Mesh component of this monobehaviour.
         /// </summary>
+        // public void GenerateMesh()
+        // {
+        //     // Creation of temporary mesh variables which we will use to create the unity mesh object.
+        //     List<Vector3> vertices = new List<Vector3>();
+        //     List<int> triangles = new List<int>();
+        //     List<Vector2> uvs = new List<Vector2>();
+        //     int NumFaces = 0;
+
+        //     // For each block in this chunk
+        //     for (int x = 0; x < ConfigurationManager.Instance.Chunk_Diameter; x++)
+        //         for (int z = 0; z < ConfigurationManager.Instance.Chunk_Diameter; z++)
+        //             for (int y = 0; y < ConfigurationManager.Instance.Chunk_Diameter; y++)
+        //             {
+        //                 // If the block is visible, display all faces which are adjacent to invisible blocks
+        //                 AbstractBlock ours = GetBlock(x, y, z);
+        //                 if (ours == null) continue; // skip null blocks
+
+        //                 if (ours.isVisible())
+        //                 {
+        //                     AbstractBlock blockXPos = GetBlock(x + 1, y, z);
+        //                     if (blockXPos != null && !blockXPos.isVisible())
+        //                         AddPosXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+
+        //                     AbstractBlock blockXNeg = GetBlock(x - 1, y, z);
+        //                     if (blockXNeg != null && !blockXNeg.isVisible())
+        //                         AddNegXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+
+        //                     AbstractBlock blockYPos = GetBlock(x, y + 1, z);
+        //                     if (blockYPos != null && !blockYPos.isVisible())
+        //                         AddPosYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+
+        //                     AbstractBlock blockYNeg = GetBlock(x, y - 1, z);
+        //                     if (blockYNeg != null && !blockYNeg.isVisible())
+        //                         AddNegYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+
+        //                     AbstractBlock blockZPos = GetBlock(x, y, z + 1);
+        //                     if (blockZPos != null && !blockZPos.isVisible())
+        //                         AddPosZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+
+        //                     AbstractBlock blockZNeg = GetBlock(x, y, z - 1);
+        //                     if (blockZNeg != null && !blockZNeg.isVisible())
+        //                         AddNegZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 }
+        //                 // AbstractBlock ours = GetBlock(x, y, z);
+        //                 // if (ours.isVisible())
+        //                 // {
+        //                 //         if (!GetBlock(x + 1, y, z).isVisible())
+        //                 //             AddPosXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 //         if (!GetBlock(x - 1, y, z).isVisible())
+        //                 //             AddNegXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 //         if (!GetBlock(x, y + 1, z).isVisible())
+        //                 //             AddPosYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 //         if (!GetBlock(x, y - 1, z).isVisible())
+        //                 //             AddNegYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 //         if (!GetBlock(x, y, z + 1).isVisible())
+        //                 //             AddPosZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 //         if (!GetBlock(x, y, z - 1).isVisible())
+        //                 //             AddNegZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+        //                 // }
+        //             }
+
+        //     // Clear whatever data was in the mesh previously
+        //     mesh.Clear();
+
+        //     // Add in newly calculated values
+        //     mesh.vertices = vertices.ToArray();
+        //     mesh.triangles = triangles.ToArray();
+        //     mesh.uv = uvs.ToArray();
+
+        //     // Optimize, and normal calculation
+        //     MeshUtility.Optimize(mesh);
+        //     mesh.RecalculateNormals();
+        //     collider.sharedMesh = mesh;
+        // }
         public void GenerateMesh()
         {
-            // Creation of temporary mesh variables which we will use to create the unity mesh object.
+            if (mesh == null || collider == null || WorldManager.Instance == null)
+            {
+                Debug.LogError("Chunk not properly initialized before GenerateMesh!");
+                return;
+            }
+
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
             int NumFaces = 0;
 
-            // For each block in this chunk
             for (int x = 0; x < ConfigurationManager.Instance.Chunk_Diameter; x++)
+            {
                 for (int z = 0; z < ConfigurationManager.Instance.Chunk_Diameter; z++)
+                {
                     for (int y = 0; y < ConfigurationManager.Instance.Chunk_Diameter; y++)
                     {
-                        // If the block is visible, display all faces which are adjacent to invisible blocks
                         AbstractBlock ours = GetBlock(x, y, z);
+                        if (ours == null) continue;  // safety
+
                         if (ours.isVisible())
                         {
-                                if (!GetBlock(x + 1, y, z).isVisible())
-                                    AddPosXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
-                                if (!GetBlock(x - 1, y, z).isVisible())
-                                    AddNegXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
-                                if (!GetBlock(x, y + 1, z).isVisible())
-                                    AddPosYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
-                                if (!GetBlock(x, y - 1, z).isVisible())
-                                    AddNegYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
-                                if (!GetBlock(x, y, z + 1).isVisible())
-                                    AddPosZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
-                                if (!GetBlock(x, y, z - 1).isVisible())
-                                    AddNegZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            // check neighbors safely
+                            AbstractBlock xPos = GetBlock(x + 1, y, z);
+                            if (xPos != null && !xPos.isVisible()) AddPosXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            
+                            AbstractBlock xNeg = GetBlock(x - 1, y, z);
+                            if (xNeg != null && !xNeg.isVisible()) AddNegXFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            
+                            AbstractBlock yPos = GetBlock(x, y + 1, z);
+                            if (yPos != null && !yPos.isVisible()) AddPosYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            
+                            AbstractBlock yNeg = GetBlock(x, y - 1, z);
+                            if (yNeg != null && !yNeg.isVisible()) AddNegYFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            
+                            AbstractBlock zPos = GetBlock(x, y, z + 1);
+                            if (zPos != null && !zPos.isVisible()) AddPosZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
+                            
+                            AbstractBlock zNeg = GetBlock(x, y, z - 1);
+                            if (zNeg != null && !zNeg.isVisible()) AddNegZFace(x, y, z, ours, vertices, triangles, uvs, ref NumFaces);
                         }
                     }
+                }
+            }
 
-            // Clear whatever data was in the mesh previously
             mesh.Clear();
-
-            // Add in newly calculated values
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
             mesh.uv = uvs.ToArray();
-
-            // Optimize, and normal calculation
             MeshUtility.Optimize(mesh);
             mesh.RecalculateNormals();
             collider.sharedMesh = mesh;
         }
-
         #endregion
 
         #region Helpers

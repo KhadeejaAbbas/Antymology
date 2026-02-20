@@ -1,7 +1,7 @@
 using UnityEngine;
 using Antymology.Terrain;
-
-public class workerAnt : MonoBehaviour
+using System.Collections;        
+public class WorkerAnt : MonoBehaviour
 {
     public float health;
     public float stepDelay = 1.0f; // second between steps
@@ -9,15 +9,36 @@ public class workerAnt : MonoBehaviour
     public float stepDelay2 = 1.0f; // second between steps
     private float stepTimer2 = 0f;
     private bool diggable = true;
+    private bool worldReady = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         health = 100;
+        // Wait until WorldManager exists
+        // if (WorldManager.Instance == null)
+        // {
+            // Debug.LogWarning("WorkerAnt waiting for WorldManager...");
+            // StartCoroutine(WaitForWorldManager());
+            // return;
+        // }
+        StartCoroutine(WaitForWorldManager());
 
     }
+    IEnumerator WaitForWorldManager()
+    {
+        // Wait until the WorldManager singleton exists
+        while (WorldManager.Instance == null)
+        {
+            yield return null; // wait for next frame
+        }
 
+        worldReady = true;
+    }
     void Update()
     {
+        if (!worldReady) return; // don’t run ant logic until world is ready
+
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
             // Move();
@@ -33,6 +54,10 @@ public class workerAnt : MonoBehaviour
             // ok, now move forward
             Move();
        
+            // is my friend ant with me?
+            Donate();
+
+            // decrease health
             health = health - 5;
 
             stepTimer = stepDelay;
@@ -44,7 +69,7 @@ public class workerAnt : MonoBehaviour
         Vector3 forwardStep = transform.position + transform.forward;
 
         // Start ray above the next position
-        Vector3 rayStart = forwardStep + Vector3.up * 3f; // by making this value 3, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment)
+        Vector3 rayStart = forwardStep + Vector3.up * 2.55f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
 
         if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 50f)) // by making this value 50, we're saying the ant can basically jump down to any level of block
         {
@@ -111,6 +136,11 @@ public class workerAnt : MonoBehaviour
             // it is nest
             Nest();
         }
+
+        if (block == 9)
+        {
+            Die();
+        }
     }
 
     void Stone()
@@ -139,7 +169,8 @@ public class workerAnt : MonoBehaviour
 
     void Acid()
     {
-        //bro idk just ignore it?
+        //Ants standing on an AcidicBlock will have the rate at which their health decreases multiplied by 2
+        health = health - 10;
     }
 
     void Air()
@@ -163,22 +194,34 @@ public class workerAnt : MonoBehaviour
 
     int CheckBlockMaterial(int x, int y, int z)
     {
-        // Get the block from the world
+        if (WorldManager.Instance == null)
+        {
+            Debug.LogWarning("WorkerAnt skipping logic: WorldManager not ready.");
+            return 4;
+        }
+
         AbstractBlock block = WorldManager.Instance.GetBlock(x, y - 1, z);
 
-        // Get its texture ID
-        int textureID = block.TextureID;
+        if (block == null)
+        {
+            Debug.LogWarning($"Block at ({x},{y-1},{z}) is null!");
+            return 4;
+        }
 
-        return textureID;
+        return block.TextureID;
     }
 
     bool IsAnotherAntOnSameBlock()
     {
+        if (WorldManager.Instance == null || WorldManager.Instance._instances == null)
+        {
+            return false; // no other ants yet
+        }
         Vector3Int myBlock = GetBlockPosition(transform.position);
 
         foreach (GameObject ant in WorldManager.Instance._instances)
         {
-            if (ant == this.gameObject) continue;
+            if (ant == null || ant == this.gameObject) continue;
 
             Vector3Int otherBlock = GetBlockPosition(ant.transform.position);
 
@@ -189,6 +232,27 @@ public class workerAnt : MonoBehaviour
         }
 
         return false;
+    }
+    GameObject AntFriend()
+    {
+        if (WorldManager.Instance == null || WorldManager.Instance._instances == null)
+        {
+            return this.gameObject; // no other ants yet
+        }
+        Vector3Int myBlock = GetBlockPosition(transform.position);
+
+        foreach (GameObject ant in WorldManager.Instance._instances)
+        {
+            if (ant == null || ant == this.gameObject) continue;
+
+            Vector3Int otherBlock = GetBlockPosition(ant.transform.position);
+
+            if (myBlock == otherBlock)
+            {
+                return ant;
+            }
+        }
+        return this.gameObject;
     }
 
     Vector3Int GetBlockPosition(Vector3 worldPos)
@@ -220,6 +284,32 @@ public class workerAnt : MonoBehaviour
         }
         float antHeightOffset = 0.45f; 
         transform.position = new Vector3(x, y-antHeightOffset, z); 
+    }
+    
+    void Donate()
+    {
+        //Ants may give some of their health to other ants occupying the same space (must be a zero-sum exchange
+        if (IsAnotherAntOnSameBlock())
+        {
+            GameObject ant_friend = AntFriend();
+            if (ant_friend != null)
+            {
+                WorkerAnt friend = ant_friend.GetComponent<WorkerAnt>();
+                if (friend != null)
+                {
+                    if ((health > friend.health) && (health - 10 > 0) )
+                    {
+                        // donate
+                        health = health - 10;
+                        friend.health = friend.health + 10;
+                    }
+                } else{
+                    return;
+                }
+            } else{
+                return;
+            }
+        }
     }
 
 }
