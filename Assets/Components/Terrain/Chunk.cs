@@ -418,9 +418,28 @@ namespace Antymology.Terrain
         /// <summary>
         /// Late update happens after all default updates have been called.
         /// </summary>
-        public void LateUpdate()
+        // void LateUpdate()
+        // {
+        //     if (!initialized) return;
+
+        //     if (needsMeshUpdate)
+        //     {
+        //         GenerateMesh();
+        //         needsMeshUpdate = false;
+        //     }
+        // }
+
+        // public void LateUpdate()
+        // {
+        //     // If we need to update ou mesh, then do so now.
+        //     if (updateNeeded)
+        //     {
+        //         GenerateMesh();
+        //         updateNeeded = false;
+        //     }
+        // }
+        void LateUpdate()
         {
-            // If we need to update ou mesh, then do so now.
             if (updateNeeded)
             {
                 GenerateMesh();

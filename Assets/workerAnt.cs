@@ -1,6 +1,7 @@
 using UnityEngine;
 using Antymology.Terrain;
-using System.Collections;        
+using System.Collections;
+
 public class WorkerAnt : MonoBehaviour
 {
     public float health;
@@ -38,13 +39,18 @@ public class WorkerAnt : MonoBehaviour
     void Update()
     {
         if (!worldReady) return; // don’t run ant logic until world is ready
+        // if (WorldManager.Instance == null)
+        // {
+            // Die();
+            // return;
+        // }
 
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
-            // Move();
+            Move();
 
             // is ant dead?
-            if (health == 0)
+            if (health <= 0)
             {
                 Die();
             }
@@ -52,7 +58,7 @@ public class WorkerAnt : MonoBehaviour
             BlockActions();     
 
             // ok, now move forward
-            Move();
+            // Move();
        
             // is my friend ant with me?
             Donate();
@@ -68,6 +74,12 @@ public class WorkerAnt : MonoBehaviour
     {
         Vector3 direction = RandomDirection();
         Vector3 forwardStep = transform.position + direction;
+
+        int targetX = Mathf.RoundToInt(forwardStep.x);
+        int targetZ = Mathf.RoundToInt(forwardStep.z);
+
+        if (!IsInsideWorld(targetX, targetZ))
+            return; // don't move outside map
 
         // Start ray above the next position
         Vector3 rayStart = forwardStep + Vector3.up * 2.55f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
@@ -201,7 +213,7 @@ public class WorkerAnt : MonoBehaviour
             return 4;
         }
 
-        AbstractBlock block = WorldManager.Instance.GetBlock(x, y - 1, z);
+        AbstractBlock block = WorldManager.Instance.GetBlock(x, y, z);
 
         if (block == null)
         {
@@ -279,7 +291,7 @@ public class WorkerAnt : MonoBehaviour
         int y = (int)Mathf.Round(transform.position.y);
         int z = (int)Mathf.Round(transform.position.z);
         // move down until we hit non-air
-        while (WorldManager.Instance.GetBlock(x, y - 1, z) is AirBlock)
+        while (y > 0 && WorldManager.Instance.GetBlock(x, y - 1, z) is AirBlock)
         {
             y--;
         }
@@ -325,5 +337,14 @@ public class WorkerAnt : MonoBehaviour
             default: return Vector3.left;
         }
     }
+    bool IsInsideWorld(int x, int z)
+    {
+        int maxX = WorldManager.Instance.WorldSizeX;
+        int maxZ = WorldManager.Instance.WorldSizeZ;
+
+        return x >= 0 && x < maxX &&
+            z >= 0 && z < maxZ;
+    }
+
 
 }

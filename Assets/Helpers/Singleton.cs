@@ -17,6 +17,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     /// <summary>
     /// Access singleton instance through this propriety.
     /// </summary>
+    
     public static T Instance
     {
         get
@@ -62,6 +63,9 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     private void OnDestroy()
     {
+        Debug.LogError("WorldManager DESTROYED at frame: " + Time.frameCount);
+        Debug.LogError("WorldManager DESTROYED by: " + gameObject.name);
+        Debug.LogError("Stack trace:\n" + System.Environment.StackTrace);
         m_ShuttingDown = true;
     }
 }

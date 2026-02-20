@@ -20,6 +20,9 @@ namespace Antymology.Terrain
         // for looking at the queen ant
         public Transform target;
 
+        public int WorldSizeX;
+        public int WorldSizeZ;
+
         /// <summary>
         /// generating a lot of ants.
         /// </summary>
@@ -27,7 +30,7 @@ namespace Antymology.Terrain
         // You might even want to keep track of each instance:
         public List<GameObject> _instances = new List<GameObject>();
 
-        // Define the range for the random positions
+        // Define the range for the random positions for the ants spawn pos
         public float minX = 50f;
         public float maxX = 70f;
         public float minY = 13f;
@@ -98,6 +101,8 @@ namespace Antymology.Terrain
         {
             GenerateData();
             GenerateChunks();
+            WorldSizeX = Chunks.GetLength(0) * ConfigurationManager.Instance.Chunk_Diameter;
+            WorldSizeZ = Chunks.GetLength(2) * ConfigurationManager.Instance.Chunk_Diameter;
 
             // Camera.main.transform.position = new Vector3(0 / 2, Blocks.GetLength(1), 0);
             Camera.main.transform.position = new Vector3(60, 27, 40);
@@ -281,6 +286,7 @@ namespace Antymology.Terrain
         /// <summary>
         /// Generates the preliminary world data based on perlin noise.
         /// </summary>
+    
         private void GeneratePreliminaryWorld()
         {
             for (int x = 0; x < Blocks.GetLength(0); x++)
