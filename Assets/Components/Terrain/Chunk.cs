@@ -229,7 +229,10 @@ namespace Antymology.Terrain
             mesh.uv = uvs.ToArray();
             MeshUtility.Optimize(mesh);
             mesh.RecalculateNormals();
-            collider.sharedMesh = mesh;
+            collider.sharedMesh = null;   // force Unity to drop old collision
+            collider.sharedMesh = mesh;   // assign new mesh
+
+            // collider.sharedMesh = mesh;
         }
         #endregion
 

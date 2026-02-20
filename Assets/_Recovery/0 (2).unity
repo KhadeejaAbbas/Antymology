@@ -378,7 +378,7 @@ MonoBehaviour:
   queen: {fileID: 0}
   WorldSizeX: 0
   WorldSizeZ: 0
-  instanceCount: 300
+  instanceCount: 200
   _instances: []
   minX: 55
   maxX: 65

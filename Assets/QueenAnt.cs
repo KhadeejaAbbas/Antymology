@@ -7,30 +7,34 @@ public class QueenAnt : MonoBehaviour
     public float health;
     public float stepDelay = 20f; // second between steps
     private float stepTimer = 0f;
-    private bool worldReady = false;
+    // private bool worldReady = false;
+    private Rigidbody rb;
+    public LayerMask groundMask; //  Inspector
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         health = 900;
-        StartCoroutine(WaitForWorldManager());
+        stepTimer = stepDelay; 
+        // StartCoroutine(WaitForWorldManager());
+        rb = GetComponent<Rigidbody>();
 
     }
 
-    IEnumerator WaitForWorldManager()
-    {
-        // Wait until the WorldManager singleton exists
-        while (WorldManager.Instance == null)
-        {
-            yield return null; // wait for next frame
-        }
+    // IEnumerator WaitForWorldManager()
+    // {
+    //     // Wait until the WorldManager singleton exists
+    //     while (WorldManager.Instance == null)
+    //     {
+    //         yield return null; // wait for next frame
+    //     }
 
-        worldReady = true;
-    }
+    //     worldReady = true;
+    // }
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (!worldReady) return; // don’t run ant logic until world is ready
+        // if (!worldReady) return; // don’t run ant logic until world is ready
        
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
@@ -41,7 +45,11 @@ public class QueenAnt : MonoBehaviour
                 Die();
             }
 
-            Move();
+            if (health >= 900)
+            {
+                health = 900; //setting a limit on the queen health
+            }
+            // Move();
 
             // build nest
             BuildNest();     
@@ -49,7 +57,7 @@ public class QueenAnt : MonoBehaviour
             // since it's the nest, i want it spreading and not diffusing
             // SpreadPheromone();
             // ok, now move forward
-            // Move();
+            Move();
 
 
             // decrease health
@@ -61,24 +69,53 @@ public class QueenAnt : MonoBehaviour
 
     void Move()
     {
+        int antLayer = LayerMask.NameToLayer("Ant"); // get the layer number
+        int ignoreAntMask = ~(1 << antLayer);        // invert the bit to hit everything except ants
+
         Vector3 direction = RandomDirection();
         Vector3 forwardStep = transform.position + direction;
-
+        
+        int x = Mathf.FloorToInt(forwardStep.x);
+        int z = Mathf.FloorToInt(forwardStep.z);
         // Start ray above the next position
-        Vector3 rayStart = forwardStep + Vector3.up * 2.55f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
+        Vector3 rayStart = forwardStep + Vector3.up * 10f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
 
-        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 50f)) // by making this value 50, we're saying the ant can basically jump down to any level of block
-        {
-            float groundY = hit.point.y;
-            // place ant on next block
-            transform.position = new Vector3(
-                Mathf.Round(forwardStep.x),
-                groundY,
-                Mathf.Round(forwardStep.z)
-            );
-        }
+        // if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 50f, ignoreAntMask)) // by making this value 50, we're saying the ant can basically jump down to any level of block
+        // {
+        //     float groundY = hit.point.y;
+        //     // place ant on next block
+        //     Vector3 newPosition = new Vector3(
+        //         x,
+        //         groundY,
+        //         z
+        //     );
+        //     rb.MovePosition(newPosition);
+
+        // }
+                // Keep current Y and only move horizontally
+        Vector3 newPos = new Vector3(x, rb.position.y, z);
+
+        rb.MovePosition(newPos);
     }
+    // void MoveDown()
+    // {
+    //     // int x = Mathf.FloorToInt(transform.position.x);
+    //     // int z = Mathf.FloorToInt(transform.position.z);
+    //     // Start ray above the next position
+    //     // Vector3 rayStart = transform.position + Vector3.up * 10f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
 
+    //     // if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 50f)) // by making this value 50, we're saying the ant can basically jump down to any level of block
+    //     // {
+    //         // float groundY = hit.point.y;
+    //         // place ant on next block
+    //         Vector3 newPosition = new Vector3(
+    //             transform.position.x,
+    //             transform.position.y + 1,
+    //             transform.position.z
+    //         );
+    //         rb.MovePosition(newPosition);
+    //     // }
+    // }
     void BuildNest()
     {
         // minus health
@@ -102,7 +139,7 @@ public class QueenAnt : MonoBehaviour
             SpreadPheromone(air, x, y+2, z);
         }
 
-
+        // MoveDown();
         // move queen ontop of block
         // transform.position = new Vector3(
         //     x,

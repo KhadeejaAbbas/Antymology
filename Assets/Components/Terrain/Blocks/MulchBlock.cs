@@ -41,6 +41,7 @@ namespace Antymology.Terrain
         }
 
         public override int TextureID => 1; // mulch
+        public float mulchiSmell { get; set; } = 10f;
 
         #endregion
 
