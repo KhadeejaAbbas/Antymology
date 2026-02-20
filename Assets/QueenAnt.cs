@@ -5,8 +5,10 @@ using System.Collections;
 public class QueenAnt : MonoBehaviour
 {
     public float health;
+    public bool queenDead = false;
     public float stepDelay = 20f; // second between steps
     private float stepTimer = 0f;
+    private bool airB = true;
     // private bool worldReady = false;
     private Rigidbody rb;
     public LayerMask groundMask; //  Inspector
@@ -42,6 +44,8 @@ public class QueenAnt : MonoBehaviour
             // is ant dead?
             if (health <= 0)
             {
+                // kill the ants first
+                queenDead = true;
                 Die();
             }
 
@@ -78,7 +82,7 @@ public class QueenAnt : MonoBehaviour
         int x = Mathf.FloorToInt(forwardStep.x);
         int z = Mathf.FloorToInt(forwardStep.z);
         // Start ray above the next position
-        Vector3 rayStart = forwardStep + Vector3.up * 10f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
+        // Vector3 rayStart = forwardStep + Vector3.up * 10f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
 
         // if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 50f, ignoreAntMask)) // by making this value 50, we're saying the ant can basically jump down to any level of block
         // {
@@ -93,9 +97,30 @@ public class QueenAnt : MonoBehaviour
 
         // }
                 // Keep current Y and only move horizontally
-        Vector3 newPos = new Vector3(x, rb.position.y, z);
+        if (WorldManager.Instance.GetBlock((int)x,(int)rb.position.y,(int)z) is AirBlock air)
+        {
+            Vector3 newPos = new Vector3(x, rb.position.y, z);
 
-        rb.MovePosition(newPos);
+            rb.MovePosition(newPos);
+        }
+        else{
+            airB = false;
+            while(!airB)
+            {
+                if (WorldManager.Instance.GetBlock((int)x,(int)rb.position.y,(int)z) is AirBlock a)
+                {
+                    airB = true;
+                }
+                //dont move there! try else where
+                direction = RandomDirection();
+                forwardStep = transform.position + direction;
+                x = Mathf.FloorToInt(forwardStep.x);
+                z = Mathf.FloorToInt(forwardStep.z);
+            }
+            Vector3 newPos = new Vector3(x, rb.position.y, z);
+
+            rb.MovePosition(newPos);
+        }
     }
     // void MoveDown()
     // {
@@ -121,10 +146,11 @@ public class QueenAnt : MonoBehaviour
         // minus health
         health = health - 300;
         // is ant dead?
-        if (health <= 0)
-        {
-            Die();
-        }
+        // if (health <= 0)
+        // {
+        //     // kill all the ants
+        //     Die();
+        // }
 
         int x = Mathf.FloorToInt(transform.position.x);
         int y = Mathf.FloorToInt(transform.position.y);

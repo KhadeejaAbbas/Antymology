@@ -52,12 +52,17 @@ public class WorkerAnt : MonoBehaviour
 
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
-            Move();
+            QueenAnt queen = WorldManager.Instance.queen;
+            if (queen.queenDead)
+            {
+                Die();
+            }
             // is ant dead?
             if (health <= 0)
             {
                 Die();
             }
+            Move();
             // ok, now move forward
             // Move();
             // is the block we're on eatable?
