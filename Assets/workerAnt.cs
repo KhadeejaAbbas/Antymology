@@ -66,7 +66,8 @@ public class WorkerAnt : MonoBehaviour
 
     void Move()
     {
-        Vector3 forwardStep = transform.position + transform.forward;
+        Vector3 direction = RandomDirection();
+        Vector3 forwardStep = transform.position + direction;
 
         // Start ray above the next position
         Vector3 rayStart = forwardStep + Vector3.up * 2.55f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
@@ -309,6 +310,19 @@ public class WorkerAnt : MonoBehaviour
             } else{
                 return;
             }
+        }
+    }
+
+    Vector3 RandomDirection()
+    {
+        int direction = UnityEngine.Random.Range(0, 4); 
+
+        switch (direction)
+        {
+            case 0: return Vector3.forward;
+            case 1: return Vector3.back;
+            case 2: return Vector3.right;
+            default: return Vector3.left;
         }
     }
 
