@@ -1,10 +1,13 @@
 using UnityEngine;
 using Antymology.Terrain;
 using System.Collections; 
+using TMPro; 
 
 public class QueenAnt : MonoBehaviour
 {
+    public TextMeshProUGUI valueText; // Reference to the UI text object
     public float health;
+    public int NestBlockCount;
     public bool queenDead = false;
     public float stepDelay = 20f; // second between steps
     private float stepTimer = 0f;
@@ -20,6 +23,7 @@ public class QueenAnt : MonoBehaviour
         stepTimer = stepDelay; 
         // StartCoroutine(WaitForWorldManager());
         rb = GetComponent<Rigidbody>();
+        valueText = FindObjectOfType<TextMeshProUGUI>();
 
     }
 
@@ -156,6 +160,9 @@ public class QueenAnt : MonoBehaviour
         int y = Mathf.FloorToInt(transform.position.y);
         int z = Mathf.FloorToInt(transform.position.z);
         WorldManager.Instance.SetBlock(x, y+1, z, new NestBlock());
+
+        NestBlockCount++;
+        valueText.text = "Number of Nest Blocks: " + NestBlockCount.ToString(); 
 
         AbstractBlock block = WorldManager.Instance.GetBlock(x, y+2, z);
 
