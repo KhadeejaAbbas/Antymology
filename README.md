@@ -2,7 +2,7 @@
 
 This project mimics ants building a nest with a queen ant, similar to real life.
 
-![Ants](Images/antQ2.mov)
+![Ants](Images/q3.mov)
 
 ## Overview
 
