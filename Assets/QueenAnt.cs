@@ -57,15 +57,16 @@ public class QueenAnt : MonoBehaviour
             {
                 health = 900; //setting a limit on the queen health
             }
-            // Move();
+            Move(); 
 
             // build nest
+            // if (airB){
             BuildNest();     
-
+            // }
             // since it's the nest, i want it spreading and not diffusing
             // SpreadPheromone();
             // ok, now move forward
-            Move();
+            // Move();
 
 
             // decrease health
@@ -84,6 +85,7 @@ public class QueenAnt : MonoBehaviour
         Vector3 forwardStep = transform.position + direction;
         
         int x = Mathf.FloorToInt(forwardStep.x);
+        int y = Mathf.FloorToInt(forwardStep.y);
         int z = Mathf.FloorToInt(forwardStep.z);
         // Start ray above the next position
         // Vector3 rayStart = forwardStep + Vector3.up * 10f; // by making this value 2.55, we're saying that the max the ant can look up to move is 2 blocks (as specified by the assignment). We use 2.55 because the ant is slightly floating above the block
@@ -100,31 +102,47 @@ public class QueenAnt : MonoBehaviour
         //     rb.MovePosition(newPosition);
 
         // }
-                // Keep current Y and only move horizontally
-        if (WorldManager.Instance.GetBlock((int)x,(int)rb.position.y,(int)z) is AirBlock air)
+        // Keep current Y and only move horizontally
+        // airB = false;
+        // while(!airB)
+        // {
+        AbstractBlock bl = WorldManager.Instance.GetBlock(x, y, z);
+
+        if (bl is AirBlock a)
+        // if (WorldManager.Instance.GetBlock((int)x,(int)y,(int)z) is AirBlock air)
         {
+            // airB = true;
             Vector3 newPos = new Vector3(x, rb.position.y, z);
-
             rb.MovePosition(newPos);
         }
-        else{
-            airB = false;
-            while(!airB)
-            {
-                if (WorldManager.Instance.GetBlock((int)x,(int)rb.position.y,(int)z) is AirBlock a)
-                {
-                    airB = true;
-                }
+        // else{
+            // airB = false;
+        // }
+            //dont move there! try else where
+            // direction = RandomDirection();
+            // forwardStep = transform.position + direction;
+            // x = Mathf.FloorToInt(forwardStep.x);
+            // y = Mathf.FloorToInt(forwardStep.y);
+            // z = Mathf.FloorToInt(forwardStep.z);
+        // }
+        // else{
+            // airB = false;
+            // while(!airB)
+            // {
+                // if (WorldManager.Instance.GetBlock((int)x,(int)rb.position.y,(int)z) is AirBlock a)
+                // {
+                    // airB = true;
+                // }
                 //dont move there! try else where
-                direction = RandomDirection();
-                forwardStep = transform.position + direction;
-                x = Mathf.FloorToInt(forwardStep.x);
-                z = Mathf.FloorToInt(forwardStep.z);
-            }
-            Vector3 newPos = new Vector3(x, rb.position.y, z);
-
-            rb.MovePosition(newPos);
-        }
+                // direction = RandomDirection();
+                // forwardStep = transform.position + direction;
+                // x = Mathf.FloorToInt(forwardStep.x);
+                // z = Mathf.FloorToInt(forwardStep.z);
+            // }
+            // Vector3 newPos = new Vector3(x, rb.position.y, z);
+// 
+            // rb.MovePosition(newPos);
+        // }
     }
     // void MoveDown()
     // {
@@ -147,8 +165,7 @@ public class QueenAnt : MonoBehaviour
     // }
     void BuildNest()
     {
-        // minus health
-        health = health - 300;
+
         // is ant dead?
         // if (health <= 0)
         // {
@@ -159,19 +176,25 @@ public class QueenAnt : MonoBehaviour
         int x = Mathf.FloorToInt(transform.position.x);
         int y = Mathf.FloorToInt(transform.position.y);
         int z = Mathf.FloorToInt(transform.position.z);
-        WorldManager.Instance.SetBlock(x, y+1, z, new NestBlock());
+        AbstractBlock b = WorldManager.Instance.GetBlock(x, y+1, z);
 
-        NestBlockCount++;
-        valueText.text = "Number of Nest Blocks: " + NestBlockCount.ToString(); 
+        if (!(b is NestBlock n)){
+            // minus health
+            health = health - 300;
+            WorldManager.Instance.SetBlock(x, y+1, z, new NestBlock());
 
-        AbstractBlock block = WorldManager.Instance.GetBlock(x, y+2, z);
+            NestBlockCount++;
+            valueText.text = "Number of Nest Blocks: " + NestBlockCount.ToString(); 
 
-        if (block is AirBlock air)
-        {
-            air.closessToNest = 10f;
-            SpreadPheromone(air, x, y+2, z);
+            AbstractBlock block = WorldManager.Instance.GetBlock(x, y+2, z);
+
+            if (block is AirBlock air)
+            {
+                air.closessToNest = 10f;
+                SpreadPheromone(air, x, y+2, z);
+            }
+            Move();
         }
-
         // MoveDown();
         // move queen ontop of block
         // transform.position = new Vector3(
