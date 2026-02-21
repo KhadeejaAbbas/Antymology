@@ -2,7 +2,7 @@
 
 This project mimics ants building a nest with a queen ant, similar to real life.
 
-![Ants](Images/q3Q.mov)
+![Ants](Images/q.mov)
 
 ## Overview
 
@@ -37,11 +37,14 @@ The graphical interface was changed to make it work with a trackpad. Please eith
 
 ### Bugs
 This was the first time I used Unity in-depth to build a game like this. I learnt a lot. One big learning curve was figuring out how to make the ants move correctly. My ants had a tendency to fly or fall out of the map.
+
 ![Ants](Images/antFlying.mov)
 
 ![Ants](Images/antsFalling.mov)
 
 I initially tried making the ants move like they were walking before switching to making them snap to their positions. I also learnt about RigidBodies near the end of implementing and switched everything to be a RigidBody. 
+
 I also had a weird bug where my enitre WorldManager would be deleted after a bit but I figured it out after a few hours!
+
 It was a big learning curve but I feel I am more prepared to start the next assignment with Unity!
  
