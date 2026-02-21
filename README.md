@@ -11,16 +11,18 @@ This project utlizes pheromones to guide ants towards wanted blocks. Each ant fo
 ## How It Works
 The worker ants have the following logic they are following:
 1. They start with 500 health
-2. Every move, their health is decreased by 5
-3. If the queen's health is less than 300, all ants will try to rush to her nest to donate health to her
-4. If anther ant is on the same block, the ant with more health will donate to the other ant
-5. Ants will use pheromones to know where the nest blocks are
-6. Mulch blocks have their own pheromones so ants will naturally try to follow this if the queen is not in danger
-7. If the ants run into a big wall (taller than 2 blocks), they will try moving in a random direction
-8. If there are more than 2 ants on a block, the ant will try randomly moving elsewhere
+2. Ants move every second
+3. Every move, their health is decreased by 5
+4. If the queen's health is less than 300, all ants will try to rush to her nest to donate health to her
+5. If anther ant is on the same block, the ant with more health will donate to the other ant
+6. Ants will use pheromones to know where the nest blocks are
+7. Mulch blocks have their own pheromones so ants will naturally try to follow this if the queen is not in danger
+8. If the ants run into a big wall (taller than 2 blocks), they will try moving in a random direction
+9. If there are more than 2 ants on a block, the ant will try randomly moving elsewhere
 
 The queen ant has the following logic:
-
+1. Start with 900 health and that is the maximum health it can accumulate
+2. The queen only moves every 4 seconds
 
 You are able to experience it generating an environment by simply running the project once you have loaded it into unity.
 
