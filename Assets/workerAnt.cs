@@ -7,25 +7,15 @@ public class WorkerAnt : MonoBehaviour
     public float health;
     public float stepDelay = 1.0f; // second between steps
     private float stepTimer = 0f;
-    public float stepDelay2 = 1.0f; // second between steps
-    private float stepTimer2 = 0f;
     private bool diggable = true;
     private bool worldReady = false;
     private Rigidbody rb;
     private bool tooManyAnts = false;
     private bool hitAHill = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         health = 500;
-        // Wait until WorldManager exists
-        // if (WorldManager.Instance == null)
-        // {
-            // Debug.LogWarning("WorkerAnt waiting for WorldManager...");
-            // StartCoroutine(WaitForWorldManager());
-            // return;
-        // }
         stepTimer = stepDelay; 
         StartCoroutine(WaitForWorldManager());
         rb = GetComponent<Rigidbody>();
@@ -44,11 +34,6 @@ public class WorkerAnt : MonoBehaviour
     void FixedUpdate()
     {
         if (!worldReady) return; // don’t run ant logic until world is ready
-        // if (WorldManager.Instance == null)
-        // {
-            // Die();
-            // return;
-        // }
 
         stepTimer -= Time.deltaTime;
         if (stepTimer <= 0f){
@@ -62,14 +47,12 @@ public class WorkerAnt : MonoBehaviour
             {
                 Die();
             }
-            Move();
-            // ok, now move forward
-            // Move();
-            // is the block we're on eatable?
-            BlockActions();     
 
             // ok, now move forward
-            // Move();
+            Move();
+
+            // is the block we're on eatable?
+            BlockActions();     
        
             // is my friend ant with me?
             Donate();
@@ -86,8 +69,8 @@ public class WorkerAnt : MonoBehaviour
         Vector3 direction;
         QueenAnt queen = WorldManager.Instance.queen;
 
-        // if (health > 250 || (queen.health < 600)) // move towards nest if we have enough health to give or if the queen is close to dying
-        if ((queen.health < 600)) // move towards nest if we have enough health to give or if the queen is close to dying
+        if (health > 250 || (queen.health < 600)) // move towards nest if we have enough health to give or if the queen is close to dying
+        // if ((queen.health < 600)) // move towards nest if we have enough health to give or if the queen is close to dying
         {
             direction = FindBestPheromoneDirection();
         }
@@ -102,9 +85,7 @@ public class WorkerAnt : MonoBehaviour
         }
         else
         {
-            // direction = RandomDirection();
             direction = GoTowardsMulchiness();
-
         }
         Vector3 forwardStep = transform.position + direction;
 
@@ -119,7 +100,6 @@ public class WorkerAnt : MonoBehaviour
         if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 5f)) // by making this value 50, we're saying the ant can basically jump down to any level of block
         {
             float groundY = hit.point.y;
-            // float antHeightOffset = 0.45f;
 
             // place ant on next block
             Vector3 newPosition = new Vector3(
@@ -143,7 +123,6 @@ public class WorkerAnt : MonoBehaviour
             else{
                 // turn to a random directoin
                 tooManyAnts = true;
-                // Move();
             }
         }
         else{
@@ -161,14 +140,14 @@ public class WorkerAnt : MonoBehaviour
         // what block are we on?
         int block = CheckBlockMaterial((int)transform.position.x, (int)transform.position.y, (int)transform.position.z);
 
-            // list:
-    // 0: stone
-    // 1: mulch
-    // 2: grass
-    // 3: acid
-    // 4: air
-    // 5: container
-    // 6: nest
+        // list:
+        // 0: stone
+        // 1: mulch
+        // 2: grass
+        // 3: acid
+        // 4: air
+        // 5: container
+        // 6: nest
 
         if (block == 0)
         {
@@ -292,7 +271,6 @@ public class WorkerAnt : MonoBehaviour
         {
             return false; // no other ants yet
         }
-        // Vector3Int myBlock = GetBlockPosition(transform.position);
 
         foreach (GameObject ant in WorldManager.Instance._instances)
         {
@@ -374,20 +352,7 @@ public class WorkerAnt : MonoBehaviour
         WorldManager.Instance.SetBlock(x, y, z, new AirBlock());
     }
 
-    // void MoveDown()
-    // {
-    //     int x = (int)Mathf.Round(transform.position.x);
-    //     int y = (int)Mathf.Round(transform.position.y);
-    //     int z = (int)Mathf.Round(transform.position.z);
-    //     // move down until we hit non-air
-    //     while (y > 0 && WorldManager.Instance.GetBlock(x, y - 1, z) is AirBlock)
-    //     {
-    //         y--;
-    //     }
-    //     float antHeightOffset = 0.45f; 
-    //     transform.position = new Vector3(x, y-antHeightOffset, z); 
-    // }
-    
+
     void Donate()
     {
         //Ants may give some of their health to other ants occupying the same space (must be a zero-sum exchange
