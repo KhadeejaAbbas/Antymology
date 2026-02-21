@@ -65,11 +65,10 @@ public class QueenAnt : MonoBehaviour
         int y = Mathf.FloorToInt(forwardStep.y);
         int z = Mathf.FloorToInt(forwardStep.z);
         
-        AbstractBlock bl = WorldManager.Instance.GetBlock(x, y, z);
-
+        // AbstractBlock bl = WorldManager.Instance.GetBlock(x, y, z);
         // if (bl is AirBlock a)
         // {
-        Vector3 newPos = new Vector3(x, rb.position.y + 20, z);
+        Vector3 newPos = new Vector3(x, y + 5, z);
         rb.MovePosition(newPos);
         // }
     }
