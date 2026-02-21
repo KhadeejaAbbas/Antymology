@@ -67,11 +67,11 @@ public class QueenAnt : MonoBehaviour
         
         AbstractBlock bl = WorldManager.Instance.GetBlock(x, y, z);
 
-        if (bl is AirBlock a)
-        {
-            Vector3 newPos = new Vector3(x, rb.position.y, z);
-            rb.MovePosition(newPos);
-        }
+        // if (bl is AirBlock a)
+        // {
+        Vector3 newPos = new Vector3(x, rb.position.y + 20, z);
+        rb.MovePosition(newPos);
+        // }
     }
 
     void BuildNest()
