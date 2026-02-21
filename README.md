@@ -1,21 +1,26 @@
 # Assignment 3: Antymology
 
-As we\'ve seen in class, ants exhibit very interesting behaviour. From finding the shortest path to building bridges out of bodies ants have evolved to produce complex emergents from very simple rules. For your assignment you will need to create a species of ant which is capable of generating the biggest nest possible.
-
-I have already created the base code you will use for the assignment. Currently the simulation environment is devoid of any dynamic behaviour and exists only as a landscape. You will need to extend the functionality of what I have written in order to produce \"intelligent\" behaviour. Absolutely no behaviour has been added to this project so you are free to implement whatever you want however you want, with only a few stipulations.
+This project mimics ants building a nest with a queen ant, similar to real life.
 
 ![Ants](Images/Ants.gif)
 
-## Goal
+## Overview
 
-The only goal you have is to implement some sort of evolutionary algorithm which maximises nest production. You are in complete control over how your ants breed, make choices, and interact with the environment. Because of this, your mark is primarily going to be reflective of how much effort it looks like you put into this vs. how well your agents maximise their fitness (I.e. don\'t worry about having your ants perform exceptionally well).
+This project utlizes pheromones to guide ants towards wanted blocks. Each ant follows the same logic to supprot the queen. The queen follows her own ruleset. 
 
-## Current Code
-My code is currently broken into 4 components (found within the components folder)
-1. Agents
-2. Configuration
-3. Terrain
-4. UI
+## How It Works
+The worker ants have the following logic they are following:
+1. They start with 500 health
+2. Every move, their health is decreased by 5
+3. If the queen's health is less than 300, all ants will try to rush to her nest to donate health to her
+4. If anther ant is on the same block, the ant with more health will donate to the other ant
+5. Ants will use pheromones to know where the nest blocks are
+6. Mulch blocks have their own pheromones so ants will naturally try to follow this if the queen is not in danger
+7. If the ants run into a big wall (taller than 2 blocks), they will try moving in a random direction
+8. If there are more than 2 ants on a block, the ant will try randomly moving elsewhere
+
+The queen ant has the following logic:
+
 
 You are able to experience it generating an environment by simply running the project once you have loaded it into unity.
 
